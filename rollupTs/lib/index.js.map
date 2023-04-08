@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sources":["../src/index.ts"],"sourcesContent":["let a:string = 'rollupTs'\r\n\r\nconsole.log(process.env.NODE_ENV);\r\n"],"names":["console","log"],"mappings":"2FAEAA,QAAQC,IAAI"}
