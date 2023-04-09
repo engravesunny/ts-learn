@@ -7,6 +7,13 @@
     <title>rollupTs</title>
 </head>
 <body>
-    <script src="../lib/index.js"></script>
+    <script type="module">
+        import {Storage} from '../lib/index.js'
+        let a = new Storage()
+        a.set('key',{key:1111},new Date().getTime()+5000)
+        setInterval(() => {
+            console.log(new Date().getTime(),a.get('key'));
+        }, 500);
+    </script>
 </body>
 </html>
