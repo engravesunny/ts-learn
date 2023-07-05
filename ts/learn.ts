@@ -1356,43 +1356,270 @@ class C implements A111,B111{
 // 装饰器
 
 // 装饰器是一种特殊类型的声明，它能够被附加到类声明，方法， 访问符，属性或参数上。
-import axios from 'axios'
-// 首先定义一个类
-console.log('------------------------------------------------')
-const Base = (name:string) => {
-    const fn:ClassDecorator = (target) => {
-        // console.log(target);
-        target.prototype.name = '张三'
-        target.prototype.fn = () => {
-            console.log(name);
+// import axios from 'axios'
+// // 首先定义一个类
+// console.log('------------------------------------------------')
+// const Base = (name:string) => {
+//     const fn:ClassDecorator = (target) => {
+//         // console.log(target);
+//         target.prototype.name = '张三'
+//         target.prototype.fn = () => {
+//             console.log(name);
+//         }
+//     }
+//     return fn
+// }
+
+// const Get = (url:string) => {
+//     const fn:MethodDecorator = (target,propertyKey,descriptor:PropertyDescriptor) => {
+//         console.log(target,propertyKey,descriptor);
+//         axios.get(url).then(res=>{
+//             descriptor.value(res.data)
+//         })
+//     }
+//     return fn
+// }
+
+// @Base('李四')
+// class Http {
+//     @Get('http://kecat.top/post/ts-1%E5%90%84%E7%A7%8D%E7%B1%BB%E5%9E%8B.md')
+//     getPost(data:any):void{
+//         console.log(data);
+//     }
+// }
+
+// const http = new Http() as any
+
+// http.getPost()
+
+
+
+
+
+
+// Proxy Reflect
+
+let person = { name:'李华', age:20 }
+
+// Proxy有两个参数
+// target（要用Proxy包装的对象，只能是引用类型）和handle（以函数为属性的对象，定义在代理target是要执行的行为）
+
+let personProxy = new Proxy(person,{
+    // 拦截get
+    get(target,key,receiver){
+
+    },
+    // 拦截set
+    set(target,key,value,receiver){
+        return true
+    },
+    // 拦截删除
+    deleteProperty(target,p:string){
+        return true
+    },
+    // 拦截函数调用
+    apply(){
+
+    },
+    // 拦截in
+    has(){
+        return true
+    },
+    // 拦截for in
+    ownKeys(){
+        const res:ArrayLike<string | symbol> = []
+        return res
+    }
+    // ...
+})
+
+
+// Reflect
+
+// Reflect并非一个构造函数，想Math一样，Reflect的所有属性和方法都是静态的，可以直接调用
+
+const person2 = { name:"王明",age:24 }
+
+Reflect.get(person,'name')
+
+//  一个 mobx 观察者模式
+
+const list:Set<Function> = new Set()
+
+const autorun = (fn:Function) => {
+    if(fn){
+        list.add(fn)
+    }
+}
+
+const observable = <T extends object>(params:T) => {
+    return new Proxy(params,{
+        set(target,key,value,receiver){
+            const result = Reflect.set(target,key,value,receiver)
+            list.forEach(fn => fn())
+            return result
         }
-    }
-    return fn
+    })
 }
 
-const Get = (url:string) => {
-    const fn:MethodDecorator = (target,propertyKey,descriptor:PropertyDescriptor) => {
-        console.log(target,propertyKey,descriptor);
-        axios.get(url).then(res=>{
-            descriptor.value(res.data)
-        })
-    }
-    return fn
+const person3 = observable({name:'张力',age:21})
+
+autorun(()=>{console.log('变化了');})
+
+person3.name = '夏浩'
+person3.age = 20
+
+// 协变
+interface AAA {
+    name:string,
+    age:number
 }
 
-@Base('李四')
-class Http {
-    @Get('http://kecat.top/post/ts-1%E5%90%84%E7%A7%8D%E7%B1%BB%E5%9E%8B.md')
-    getPost(data:any):void{
-        console.log(data);
-    }
+interface BBB {
+    name:string,
+    age:number,
+    sex:number
 }
 
-const http = new Http() as any
+let aaa:AAA = {
+    name:'小飞',
+    age:18
+}
 
-http.getPost()
+let baa:BBB = {
+    name:'小强',
+    age:20,
+    sex:1
+}
+
+// baa = aaa // 报错，类型 "AAA" 中缺少属性 "sex"，但类型 "BBB" 中需要该属性
+
+aaa = baa // 可以赋值
+
+// aaa为主类型，baa为子类型，子类型必须要完全覆盖朱磊型材可以赋值，可以多但不能少
+
+
+// 逆变
+
+let abb = (params:AAA) => {
+
+}
+
+let bbb = (params:BBB) => {
+
+}
+
+
+// abb = bbb // 报错， 不能将类型“(params: BBB) => void”分配给类型“(params: AAA) => void”。
+// 参数“params”和“params” 的类型不兼容。
+//   类型 "AAA" 中缺少属性 "sex"，但类型 "BBB" 中需要该属性
+
+bbb = abb // 可以赋值，道理与协变一样 调用bbb相当于调用abb，要把bbb的参数BBB类型赋值到abb的AAA类型，此时AAA类型还是主类型，BBB类型还是子类型，子类型要完全覆盖主类型才可以进行赋值操作
+
+// 双向协变 即为 允许abb = bbb的操作 在ts2.0之前可以 但出于安全考虑 ts2.0 之后会报错 
+// 在tsconfig中将strictFunctionTypes设为true，则可以进行双向协变操作
+
+
+// set map weakSet WeakMap
+
+// set map 在ts中的定义声明方法 及内置方法
 
 
 
+let set1:Set<number> = new Set([1,2,3,4,4,4,4])
+
+set1.add(22)
+
+// set1.forEach 遍历
+// set1.delete() 删除
+// set1.has() 查询
+// set1.keys() 返回一个迭代器对象，该迭代器包含Set对象中每个元素的键（与值相同）。
+// set1.clear()
+// set1.size()
+// set1.values() 获取Set对象中的所有值
+
+let map1:Map<string,any> = new Map()
+
+map1.set('111',111)
+map1.set('222',222)
+map1.set('333',333)
+map1.set('444',444)
+map1.set('555',555)
 
 
+// map1.clear()
+// map1.delete()
+// map1.forEach() 遍历
+// map1.get()
+// map1.has()
+// map1.set() 添加键值对
+
+// map1.keys() Map.keys() 返回的是一个迭代器，而不是一个数组 可以使用for of 遍历
+
+// console.log(map1.keys());
+
+for(let key of set1.keys()){
+    console.log(key)
+}
+
+// weakMap weakSet  弱引用
+
+// WeakMap 和 WeakSet 是 JavaScript 的两个内置对象，它们是 Map 和 Set 的弱引用版本。它们之所以被称为弱引用，是因为它们允许其键和值被垃圾回收，即使它们仍然存在于 WeakMap 或 WeakSet 中。
+
+// 下面是 WeakMap 和 WeakSet 的特性：
+
+// 1.WeakMap 和 WeakSet 只允许使用对象作为键或值。原始值（如字符串、数字和布尔值）不能被用作键或值。
+
+// 2.WeakMap 和 WeakSet 中的键和值是弱引用的，这意味着如果没有其他引用指向它们，它们将被垃圾回收。
+
+// 3.WeakMap 中的键是不可枚举的，因此无法使用 for...of 或 forEach 方法进行遍历。
+
+// 4.WeakMap 和 WeakSet 没有 size 属性，也不能使用 clear() 方法。
+
+// 5.WeakMap 和 WeakSet 不能被迭代，因此无法使用 keys()、values() 和 entries() 方法。
+
+// 6.WeakMap 和 WeakSet 无法被序列化为 JSON。
+
+// WeakMap 和 WeakSet 通常用于需要存储临时数据的场景，
+// 例如缓存或事件处理程序，因为它们可以自动释放占用的内存。
+// 但是，由于它们的特殊性质，它们可能不适合所有情况，
+// 因此需要根据实际需求进行选择。
+
+// 
+
+type personsss = {
+    name:string,
+    age:number
+}
+
+type personaaa = Partial<personsss>
+
+// 相当于
+// type personaaa = {
+//     name?: string | undefined;
+//     age?: number | undefined;
+// }
+
+// Partial 源码
+// type Partial<T> = {
+//     [P in keyof T]?: T[P];
+// };
+
+const personxxx:Partial<personsss> = {
+    
+}
+
+// Pick
+
+type name222 = Pick<personsss,'name'|'age'>
+
+// 相当于 筛选（或过滤）
+// type name222 = {
+//     name: string;
+//     age: number;
+// }
+
+// pick源码
+// type Pick<T, K extends keyof T> = {
+//     [P in K]: T[P];
+// };

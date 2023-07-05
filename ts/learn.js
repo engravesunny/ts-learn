@@ -1,5 +1,6 @@
 "use strict";
 // // 一、 基础类型
+Object.defineProperty(exports, "__esModule", { value: true });
 // // 1.字符串类型 string
 // let a:string = 'aaa'
 // let b:string = `${a}bbb`   // 模板字符串
@@ -513,7 +514,7 @@ var Types3;
 // 这个值通常是很难读的 - 它并不能表达有用的信息，
 // 字符串枚举允许你提供一个运行时有意义的并且可读的值，独立于枚举成员的名字。
 // 3.异构枚举
-// 美居客一混合字符串和数字成员
+// 混合字符串和数字成员
 var Types4;
 (function (Types4) {
     Types4["No"] = "no";
@@ -532,7 +533,7 @@ let obj = {
 };
 console.log("no" /* Types6.No */);
 // js
-console.log("no" /* Types6.No */);
+// console.log("no" /* Types6.No */);
 // 普通声明的枚举编译完后是个对象
 var Types7;
 (function (Types7) {
@@ -540,6 +541,13 @@ var Types7;
     Types7[Types7["Yes"] = 1] = "Yes";
 })(Types7 || (Types7 = {}));
 console.log(Types7.No);
+// js
+// var Types7;
+// (function (Types7) {
+//     Types7["No"] = "no";
+//     Types7[Types7["Yes"] = 1] = "Yes";
+// })(Types7 || (Types7 = {}));
+// console.log(Types7.No);
 // 6.反向映射
 var Enum;
 (function (Enum) {
@@ -549,3 +557,507 @@ let a = Enum.fall;
 console.log(a); // 0
 let namess = Enum[a];
 console.log(namess); // fall
+// js
+// var Enum;
+// (function (Enum) {
+//     Enum[Enum["fall"] = 0] = "fall";
+// })(Enum || (Enum = {}));
+// let a = Enum.fall;
+// console.log(a); // 0
+// let namess = Enum[a];
+// console.log(namess); // fall
+// 类型推论
+// 我声明了一个变量但是没有定义类型,TypeScript 会在没有明确的指定类型的时候推测出一个类型，这就是类型推论
+let str11 = 'sss'; // let str11: string
+// str11 = 12333  // 不能将类型“number”分配给类型“string”。
+// 如果你声明变量没有定义类型也没有赋值这时候TS会推断成any类型可以进行任何操作
+let aaaa; // let aaaa: any
+aaaa = 1;
+aaaa = true;
+aaaa = '123'; // 都不会报错
+let str222 = '111'; // let str222: string
+// let strFn:fn = () => 111 // 不能将类型“number”分配给类型“string”
+let strFns = () => '111';
+let sabc = 123;
+let nabc = '123';
+// let conss:value = '123'  // 不能将类型“"123"”分配给类型“value”
+let conss = 1;
+// 层级关系 上包含下
+// unknown any
+// Object 
+// Number String Boolean
+// number string boolean
+// 1 'test' true
+// never
+// never类型
+// TypeScript 将使用 never 类型来表示不应该存在的状态
+// 返回never的函数必须存在无法达到的终点
+// 因为必定抛出异常，所以 error 将不会有返回值
+function error(message) {
+    throw new Error(message);
+}
+// 因为存在死循环，所以 loop 将不会有返回值
+function loop() {
+    while (true) {
+    }
+}
+// never 与 void 的差异
+//void类型只是没有返回值 但本身不会出错
+function Void() {
+    console.log();
+}
+//只会抛出异常没有返回值
+function Never() {
+    throw new Error('aaa');
+}
+function isXiaoMan(value) {
+    switch (value) {
+        case "小满":
+            break;
+        case "大满":
+            break;
+        case "超大满":
+            break;
+        default:
+            //是用于场景兜底逻辑
+            const error = value;
+            return error;
+    }
+}
+// Symbol
+// 自ECMAScript 2015起，symbol成为了一种新的原生类型，就像number和string一样。
+// symbol类型的值是通过Symbol构造函数创建的。
+// 可以传递参做为唯一标识 只支持 string 和 number类型的参数
+let sym1 = Symbol(1);
+let sym2 = Symbol(1);
+console.log(sym1 === sym2);
+console.log(Symbol.for('sym1') === Symbol.for('sym1'));
+let objss = {
+    [sym1]: 1,
+    [sym2]: 2,
+    name: '111'
+};
+console.log(objss[sym1]);
+// Symbol的值是唯一的
+const sym3 = Symbol(1);
+const sym4 = Symbol(1);
+// console.log(sym3 === sym4); // 本身为false 此比较似乎是无意的，因为类型“typeof sym3”和“typeof sym4”没有重叠。
+// 用作对象属性的键
+let sym = Symbol();
+let obj_1 = {
+    [sym]: 'value'
+};
+console.log(obj_1[sym]); // 'value'
+// 使用symbol定义的属性，是不能通过如下方式遍历拿到的
+const symbol1 = Symbol(1);
+const symbol2 = Symbol(2);
+const obj_2 = {
+    [symbol1]: '111',
+    [symbol2]: '222',
+    age: 19,
+    sex: 1
+};
+for (let key in obj_2) {
+    console.log(key);
+}
+// age
+// sex
+console.log(Object.keys(obj_2)); // [ 'age', 'sex' ]
+console.log(Object.getOwnPropertyNames(obj_2)); // [ 'age', 'sex' ]
+console.log(JSON.stringify(obj_2)); // {"age":19,"sex":1}
+// 如何拿到
+console.log(Object.getOwnPropertySymbols(obj_2)); // [ Symbol(1), Symbol(2) ]
+// es6 的 Reflect 拿到对象的所有属性
+console.log(Reflect.ownKeys(obj_2)); // [ 'age', 'sex', Symbol(1), Symbol(2) ]
+// Symbol.iterator 迭代器 和 生成器 for of
+// 支持遍历大部分类型迭代器 arr nodeList argumetns set map 等
+let arr_it = [1, 2, 3, 4];
+let iterator = arr_it[Symbol.iterator]();
+console.log(iterator.next()); // { value: 1, done: false }
+console.log(iterator.next()); // { value: 2, done: false }
+console.log(iterator.next()); // { value: 3, done: false }
+console.log(iterator.next()); // { value: 4, done: false }
+console.log(iterator.next()); // { value: undefined, done: true }
+let array = [{ name: '111', age: 11 }, { name: '222', age: 22 }, { name: '333', age: 33 }, { name: '444', age: 44 }];
+let set = new Set([1, 1, 1, 2, 2, 2, 3, 3, 3]);
+console.log(set); // Set(3) { 1, 2, 3 }
+let map = new Map();
+map.set('111', 11);
+map.set('222', 22);
+console.log(map); // Map(2) { '111' => 11, '222' => 22 }
+console.log(map.get('111')); // 11
+function gen(arr) {
+    let it = arr[Symbol.iterator]();
+    let next = { done: false };
+    while (!next.done) {
+        next = it.next();
+        if (!next.done) {
+            console.log(next.value);
+        }
+    }
+}
+gen(array);
+// { name: '111', age: 11 }
+// { name: '222', age: 22 }
+// { name: '333', age: 33 }
+// { name: '444', age: 44 }
+gen(map);
+// [ '111', 11 ]
+// [ '222', 22 ]
+gen(set);
+// 1
+// 2
+// 3
+// 我们平时开发中不会手动调用iterator 应为 他是有语法糖的就是for of  记住 for of 是不能循环对象的应为对象没有 iterator 
+for (let value of map) {
+    console.log(value);
+}
+// [ '111', 11 ]
+// [ '222', 22 ]
+// 数组解构的原理其实也是调用迭代器的
+let [a11, b11, c11] = [1, 2, 3];
+console.log(a11, b11, c11); // 1 2 3
+let a111 = [...[1, 2, 3]];
+console.log(a111); // [ 1, 2, 3 ]
+// 以下为这些symbols的列表：
+// Symbol.hasInstance
+// 方法，会被instanceof运算符调用。构造器对象用来识别一个对象是否是其实例。
+// Symbol.isConcatSpreadable
+// 布尔值，表示当在一个对象上调用Array.prototype.concat时，这个对象的数组元素是否可展开。
+// Symbol.iterator
+// 方法，被for-of语句调用。返回对象的默认迭代器。
+// Symbol.match
+// 方法，被String.prototype.match调用。正则表达式用来匹配字符串。
+// Symbol.replace
+// 方法，被String.prototype.replace调用。正则表达式用来替换字符串中匹配的子串。
+// Symbol.search
+// 方法，被String.prototype.search调用。正则表达式返回被匹配部分在字符串中的索引。
+// Symbol.species
+// 函数值，为一个构造函数。用来创建派生对象。
+// Symbol.split
+// 方法，被String.prototype.split调用。正则表达式来用分割字符串。
+// Symbol.toPrimitive
+// 方法，被ToPrimitive抽象操作调用。把对象转换为相应的原始值。
+// Symbol.toStringTag
+// 方法，被内置方法Object.prototype.toString调用。返回创建对象时默认的字符串描述。
+// Symbol.unscopables
+// 对象，它自己拥有的属性会被with作用域排除在外。
+// 泛型
+// 泛型在TypeScript 是很重要的东西 例如vue3 是用ts编写的 里面用到了非常多的泛型
+// 函数泛型
+// 一个是数字类型的函数，另一个是字符串类型的函数,其实就是类型不同，
+// 实现的功能是一样的，这时候我们就可以使用泛型来优化
+function num111(a, b) {
+    return [a, b];
+}
+num111(1, 2);
+function str111(a, b) {
+    return [a, b];
+}
+str111('1', '2');
+//泛型优化
+// 语法为函数名字后面跟一个<参数名> 参数名可以随便写 例如我这儿写了T
+// 当我们使用这个函数的时候把参数的类型传进去就可以了 （也就是动态类型）
+function Add(a, b) {
+    return [a, b];
+}
+Add(1, 2);
+Add('1', '2');
+// Add(1,'2') // 报错，类型“string”的参数不能赋给类型“number”的参数。
+// 我们也可以使用不同的泛型参数名，只要在数量上和使用方式上能对应上就可以。
+function Sub(a, b) {
+    return [a, b];
+}
+Sub(1, '2');
+Sub('111', false);
+function fn(arg) {
+    return arg;
+}
+let result = fn;
+result(123);
+// 对象字面量泛型
+let foo;
+// foo = <T>(arg:T):T => {
+//     return arg
+// }
+foo = function (arg) {
+    return arg;
+};
+foo('123');
+// 泛型约束
+// 我们期望在一个泛型的变量上面，获取其length参数，但是，有的数据类型是没有length属性的
+function getLength(arg) {
+    // return arg.length   // 类型“T”上不存在属性“length”
+}
+function getLength2(arg) {
+    return arg.length;
+}
+getLength2('123');
+// 使用keyof 约束对象
+// 其中使用了TS泛型和泛型约束。
+// 首先定义了T类型并使用extends关键字继承object类型的子类型，
+// 然后使用keyof操作符获取T类型的所有键，
+// 它的返回 类型是联合 类型，
+// 最后利用extends关键字约束 K类型必须为keyof T联合类型的子类型
+function prop(obj, key) {
+    return obj[key];
+}
+let o = {
+    a: 1, b: 2
+};
+prop(o, 'a');
+prop(o, 'b');
+// prop(o,'c') // 报错, 类型“"c"”的参数不能赋给类型“"a" | "b"”的参数。ts(2345)
+// 泛型类
+// 声明方法跟函数类似名称后面定义<类型>
+// 使用的时候确定类型new Sub<number>()
+class Sub2 {
+    constructor() {
+        this.attr = [];
+    }
+    add(a) {
+        return [a];
+    }
+}
+let s = new Sub2();
+s.attr = [1, 2, 3];
+s.add(123);
+let str = new Sub2();
+str.attr = ['1', '2', '3'];
+str.add('123');
+// namespace命名空间
+var A;
+(function (A) {
+    A.time = 1000;
+    A.fn = (arg) => {
+        return arg;
+    };
+    A.fn(A.time);
+})(A || (A = {}));
+var B;
+(function (B) {
+    B.time = 1000;
+    B.fn = (arg) => {
+        return arg;
+    };
+    B.fn(B.time);
+})(B || (B = {}));
+A.time;
+B.time;
+// 嵌套命名空间
+var a1111;
+(function (a1111) {
+    let b;
+    (function (b) {
+        class Vue {
+            constructor(parameters) {
+                this.parameters = parameters;
+            }
+        }
+        b.Vue = Vue;
+    })(b = a1111.b || (a1111.b = {}));
+})(a1111 || (a1111 = {}));
+let v = a1111.b.Vue;
+new v('1');
+// 混入
+class A111 {
+    constructor() {
+        this.type = false;
+    }
+    changeType() {
+        this.type = !this.type;
+    }
+}
+class B111 {
+    constructor() {
+        this.name = '张三';
+    }
+    getName() {
+        return this.name;
+    }
+}
+class C {
+    constructor(type, name) {
+        this.type = type;
+        this.name = name;
+    }
+    changeType() {
+    }
+    getName() {
+        return this.name;
+    }
+}
+// Mixins(C, [A, B])
+// function Mixins(curCls: any, itemCls: any[]) {
+//     itemCls.forEach(item => {
+//         Object.getOwnPropertyNames(item.prototype).forEach(name => {
+//             curCls.prototype[name] = item.prototype[name]
+//         })
+//     })
+// }
+// 装饰器
+// Decorator 装饰器是一项实验性特性，在未来的版本中可能会发生改变
+// 它们不仅增加了代码的可读性，清晰地表达了意图，而且提供一种方便的手段，增加或修改类的功能
+// 若要启用实验性的装饰器特性，你必须在命令行或tsconfig.json里启用编译器选项
+// "experimentalDecorators": true,                   /* Enable experimental support for legacy experimental decorators. */
+// 装饰器
+// 装饰器是一种特殊类型的声明，它能够被附加到类声明，方法， 访问符，属性或参数上。
+// import axios from 'axios'
+// // 首先定义一个类
+// console.log('------------------------------------------------')
+// const Base = (name:string) => {
+//     const fn:ClassDecorator = (target) => {
+//         // console.log(target);
+//         target.prototype.name = '张三'
+//         target.prototype.fn = () => {
+//             console.log(name);
+//         }
+//     }
+//     return fn
+// }
+// const Get = (url:string) => {
+//     const fn:MethodDecorator = (target,propertyKey,descriptor:PropertyDescriptor) => {
+//         console.log(target,propertyKey,descriptor);
+//         axios.get(url).then(res=>{
+//             descriptor.value(res.data)
+//         })
+//     }
+//     return fn
+// }
+// @Base('李四')
+// class Http {
+//     @Get('http://kecat.top/post/ts-1%E5%90%84%E7%A7%8D%E7%B1%BB%E5%9E%8B.md')
+//     getPost(data:any):void{
+//         console.log(data);
+//     }
+// }
+// const http = new Http() as any
+// http.getPost()
+// Proxy Reflect
+let person = { name: '李华', age: 20 };
+// Proxy有两个参数
+// target（要用Proxy包装的对象，只能是引用类型）和handle（以函数为属性的对象，定义在代理target是要执行的行为）
+let personProxy = new Proxy(person, {
+    // 拦截get
+    get(target, key, receiver) {
+    },
+    // 拦截set
+    set(target, key, value, receiver) {
+        return true;
+    },
+    // 拦截删除
+    deleteProperty(target, p) {
+        return true;
+    },
+    // 拦截函数调用
+    apply() {
+    },
+    // 拦截in
+    has() {
+        return true;
+    },
+    // 拦截for in
+    ownKeys() {
+        const res = [];
+        return res;
+    }
+    // ...
+});
+// Reflect
+// Reflect并非一个构造函数，想Math一样，Reflect的所有属性和方法都是静态的，可以直接调用
+const person2 = { name: "王明", age: 24 };
+Reflect.get(person, 'name');
+//  一个 mobx 观察者模式
+const list = new Set();
+const autorun = (fn) => {
+    if (fn) {
+        list.add(fn);
+    }
+};
+const observable = (params) => {
+    return new Proxy(params, {
+        set(target, key, value, receiver) {
+            const result = Reflect.set(target, key, value, receiver);
+            list.forEach(fn => fn());
+            return result;
+        }
+    });
+};
+const person3 = observable({ name: '张力', age: 21 });
+autorun(() => { console.log('变化了'); });
+person3.name = '夏浩';
+person3.age = 20;
+let aaa = {
+    name: '小飞',
+    age: 18
+};
+let baa = {
+    name: '小强',
+    age: 20,
+    sex: 1
+};
+// baa = aaa // 报错，类型 "AAA" 中缺少属性 "sex"，但类型 "BBB" 中需要该属性
+aaa = baa; // 可以赋值
+// aaa为主类型，baa为子类型，子类型必须要完全覆盖朱磊型材可以赋值，可以多但不能少
+// 逆变
+let abb = (params) => {
+};
+let bbb = (params) => {
+};
+// abb = bbb // 报错， 不能将类型“(params: BBB) => void”分配给类型“(params: AAA) => void”。
+// 参数“params”和“params” 的类型不兼容。
+//   类型 "AAA" 中缺少属性 "sex"，但类型 "BBB" 中需要该属性
+bbb = abb; // 可以赋值，道理与协变一样 调用bbb相当于调用abb，要把bbb的参数BBB类型赋值到abb的AAA类型，此时AAA类型还是主类型，BBB类型还是子类型，子类型要完全覆盖主类型才可以进行赋值操作
+// 双向协变 即为 允许abb = bbb的操作 在ts2.0之前可以 但出于安全考虑 ts2.0 之后会报错 
+// 在tsconfig中将strictFunctionTypes设为true，则可以进行双向协变操作
+// set map weakSet WeakMap
+// set map 在ts中的定义声明方法 及内置方法
+let set1 = new Set([1, 2, 3, 4, 4, 4, 4]);
+set1.add(22);
+// set1.forEach 遍历
+// set1.delete() 删除
+// set1.has() 查询
+// set1.keys() 返回一个迭代器对象，该迭代器包含Set对象中每个元素的键（与值相同）。
+// set1.clear()
+// set1.size()
+// set1.values() 获取Set对象中的所有值
+let map1 = new Map();
+map1.set('111', 111);
+map1.set('222', 222);
+map1.set('333', 333);
+map1.set('444', 444);
+map1.set('555', 555);
+// map1.clear()
+// map1.delete()
+// map1.forEach() 遍历
+// map1.get()
+// map1.has()
+// map1.set() 添加键值对
+// map1.keys() Map.keys() 返回的是一个迭代器，而不是一个数组 可以使用for of 遍历
+// console.log(map1.keys());
+for (let key of set1.keys()) {
+    console.log(key);
+}
+// 相当于
+// type personaaa = {
+//     name?: string | undefined;
+//     age?: number | undefined;
+// }
+// Partial 源码
+// type Partial<T> = {
+//     [P in keyof T]?: T[P];
+// };
+const personxxx = {};
+// 相当于 筛选（或过滤）
+// type name222 = {
+//     name: string;
+//     age: number;
+// }
+// pick源码
+// type Pick<T, K extends keyof T> = {
+//     [P in K]: T[P];
+// };
+let s12 = [1, 2, 3, 4, 5];
+for (let k in s12) {
+    console.log(k);
+}

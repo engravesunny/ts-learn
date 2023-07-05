@@ -1,3 +1,25 @@
+# 用TS编写消息订阅与发布
+
+## 概述
+
+> 什么是发布订阅模式呢？大家如果有js原生或者是vue2开发经验的话，已经用到了发布订阅模式例
+> 如addEventListener， evnetBus，PubSub.js库
+
+## 思维导图
+
+![thinking_picture](https://gcore.jsdelivr.net/gh/engravesunny/CDN/image/thinking_picture.webp)
+
+## 代码实例
+
+**`on` 订阅/监听**
+
+**`emit` 发布/注册**
+
+**`once` 只执行一次**
+
+**`off` 解除绑定**
+
+```ts
 // 消息订阅与发布
 
 interface EventOptions {
@@ -93,6 +115,8 @@ test.once('post',(...arg:Array<any>)=>{
 
 test.emit('post',1,false,'111')
 test.emit('post',1,false,'111')
+```
 
+## 控制台输出
 
-
+![EventBusImage](https://gcore.jsdelivr.net/gh/engravesunny/CDN/image/EventBusImage.webp)
